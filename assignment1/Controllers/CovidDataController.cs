@@ -1,0 +1,38 @@
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using assignment1.Data;
+using assignment1.Entities;
+using assignment1;
+
+/*
+@author Karl Rezansoff
+*/
+
+namespace API.Controllers
+{
+    // Attributes for the controller
+    [ApiController]
+    [Route("api/[controller]")] // route is api/CovidData
+
+    public class CovidDataController : ControllerBase
+    {
+        private ReadCSV readCSV;
+
+        // Performing file io in the constructor so it only runs once. 
+        public CovidDataController()
+        {
+            readCSV = new ReadCSV("/home/karl/vscode/dotnet/assignment1/assignment1/CovidFileIO/covid19-download.csv");
+            readCSV.ReadSomeLines(15); // Reading in 5 records.
+        }
+
+        // This endpoint will return 5 records from the covid dataset.
+        [HttpGet]
+        public List<CovidData> GetData()
+        {
+            return readCSV.covidDataObjects;
+        }
+    }
+}

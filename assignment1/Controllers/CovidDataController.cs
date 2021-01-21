@@ -7,9 +7,6 @@ using assignment1.Data;
 using assignment1.Entities;
 using assignment1;
 
-/*
-@author Karl Rezansoff
-*/
 
 namespace API.Controllers
 {
@@ -19,16 +16,21 @@ namespace API.Controllers
 
     public class CovidDataController : ControllerBase
     {
+        /// <summary>
+        /// File io on the covid dataset is performed once when the class is initialized.
+        /// One api endpoint provided to view the data.
+        /// </summary>
+        /// <author>Karl Rezansoff</author>
+        /// <created>Jan 20, 2021</created>
         private ReadCSV readCSV;
 
-        // Performing file io in the constructor so it only runs once. 
         public CovidDataController()
         {
             readCSV = new ReadCSV("/home/karl/vscode/dotnet/assignment1/assignment1/CovidFileIO/covid19-download.csv");
-            readCSV.ReadSomeLines(15); // Reading in 5 records.
+            readCSV.CreateDataObjects(15); // Reading in 15 records.
         }
 
-        // This endpoint will return 5 records from the covid dataset.
+        // This endpoint will return records from the covid dataset.
         [HttpGet]
         public List<CovidData> GetData()
         {

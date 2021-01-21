@@ -4,16 +4,19 @@ using System.Reflection;
 
 namespace assignment1.Entities
 {
-    /*
-    This class serves as the Data Transfer Object for the covid dataset.
-    
-    @author Karl Rezansoff
-    */
     public class CovidData
     {
+        /// <summary>
+        /// This class serves as the data transfer object for the Covid
+        /// Data dataset to represent a single record.
+        /// </summary>
+        /// <param name="headers">String array of the dataset headers.</param>
+        /// <param name="dataArray">String array of the values for one data record.</param>
+        /// <author>Karl Rezansoff</author>
+        /// <created>Jan 20, 2021</created>
         public CovidData(string[] headers, string[] dataArray)
         {
-            name = "Karl Rezansoff"; // Just to satisfy the name requirement of the assignment 
+            name = "Karl Rezansoff";
 
             try
             {
@@ -103,7 +106,7 @@ namespace assignment1.Entities
         }
 
         // Declaring class fields with getter/setters
-        public string name { get; set; }
+        public string name { get; set; } // Just to satisfy the name requirement of the assignment 
         public int pruid { get; set; } // Province ID
         public string prname { get; set; } // Province name
         public string prnameFR { get; set; } // Province name French

@@ -26,7 +26,7 @@ namespace API.Controllers
 
         public CovidDataController()
         {
-            readCSV = new ReadCSV("/home/karl/vscode/dotnet/assignment1/assignment1/CovidFileIO/covid19-download.csv");
+            readCSV = new ReadCSV("CovidFileIO/covid19-download.csv");
             readCSV.CreateDataObjects(15); // Reading in 15 records.
         }
 

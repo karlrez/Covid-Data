@@ -1,5 +1,5 @@
+using covid_data.Entities;
 using Microsoft.EntityFrameworkCore;
-using assignment1.Entities;
 
 namespace assignment1.Data
 {

@@ -1,7 +1,7 @@
 pruid,prname,prnameFR,date,numconf,numprob,numdeaths,numtotal,numtoday,ratetotal
 0,Karl Rezansoff,,0001-01-01 12:00:00 a.m.,0,0,0,0,0,0
 35,Ontario,Ontario,2020-01-31 12:00:00 a.m.,3,0,0,3,3,0.02
-59,British Columbia,Colombie-Britannique,2020-01-31 12:00:00 a.m.,1,0,0,1,1,0.02
+99,AN EDITTED RECORDDDDD,Ontario,2020-02-02 12:00:00 a.m.,3,0,0,3,3,0.02
 1,Canada,Canada,2020-01-31 12:00:00 a.m.,4,0,0,4,4,0.01
 35,Ontario,Ontario,2020-02-08 12:00:00 a.m.,3,0,0,3,0,0.02
 59,British Columbia,Colombie-Britannique,2020-02-08 12:00:00 a.m.,4,0,0,4,3,0.08
@@ -9,7 +9,6 @@ pruid,prname,prnameFR,date,numconf,numprob,numdeaths,numtotal,numtoday,ratetotal
 35,Ontario,Ontario,2020-02-16 12:00:00 a.m.,3,0,0,3,0,0.02
 59,British Columbia,Colombie-Britannique,2020-02-16 12:00:00 a.m.,5,0,0,5,1,0.1
 1,Canada,Canada,2020-02-16 12:00:00 a.m.,8,0,0,8,1,0.02
-35,Ontario,Ontario,2020-02-21 12:00:00 a.m.,3,0,0,3,0,0.02
 59,British Columbia,Colombie-Britannique,2020-02-21 12:00:00 a.m.,6,0,0,6,1,0.12
 1,Canada,Canada,2020-02-21 12:00:00 a.m.,9,0,0,9,1,0.02
 35,Ontario,Ontario,2020-02-24 12:00:00 a.m.,4,0,0,4,1,0.03
@@ -100,3 +99,4 @@ pruid,prname,prnameFR,date,numconf,numprob,numdeaths,numtotal,numtoday,ratetotal
 60,Yukon,Yukon,2020-03-13 12:00:00 a.m.,0,0,0,0,0,0
 61,Northwest Territories,Territoires du Nord-Ouest,2020-03-13 12:00:00 a.m.,0,0,0,0,0,0
 62,Nunavut,Nunavut,2020-03-13 12:00:00 a.m.,0,0,0,0,0,0
+99,A NEW RECORDDDDDDDDDD,Ontario,2020-02-02 12:00:00 a.m.,0,0,3,3,0,0

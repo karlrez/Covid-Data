@@ -37,9 +37,17 @@ namespace covid_data
             /// </summary>
             /// <typeparam name="CovidData">Contains fields corresponding to the dataset.</typeparam>
             /// <returns></returns>
-            covidDataObjects = new List<CovidData>();
-            filePath = "/home/karl/vscode/dotnet/covid-data/covid-data/CovidFileIO/covid19-download.csv";
             numOfLines = 100;
+            covidDataObjects = new List<CovidData>();
+
+            filePath = "/home/karl/vscode/dotnet/covid-data/covid-data/CovidFileIO/covid19-download.csv";
+            // Let user know if dataset exists
+            if (!File.Exists(filePath))
+            {
+                Console.WriteLine("Covid dataset does not exist");
+                return;
+            }
+
 
             string[] karlData = new string[20];
             karlData[0] = "karl object";
@@ -75,6 +83,12 @@ namespace covid_data
         /// <returns>Returns the entire covidDataObjects list</returns>
         public static List<CovidData> GetAll()
         {
+            if (!File.Exists(filePath))
+            {
+                Console.WriteLine("Covid dataset does not exist");
+                return null;
+            }
+
             return covidDataObjects;
         }
 
@@ -85,6 +99,12 @@ namespace covid_data
         /// <returns>Returns single covidDataObject</returns>
         public static CovidData get(int id)
         {
+            if (!File.Exists(filePath))
+            {
+                Console.WriteLine("Covid dataset does not exist");
+                return null;
+            }
+
             for (int i = 0; i < covidDataObjects.Count; i++)
             {
                 if (covidDataObjects[i].id == id)
@@ -100,6 +120,12 @@ namespace covid_data
         /// </summary>
         public static void Refresh()
         {
+            if (!File.Exists(filePath))
+            {
+                Console.WriteLine("Covid dataset does not exist");
+                return;
+            }
+
             covidDataObjects.Clear();
             index = 1;
             CreateDataObjects(numOfLines);
@@ -112,6 +138,12 @@ namespace covid_data
         /// <returns>Returns the created CovidData object</returns>
         public static CovidData Add(string[] dataArray)
         {
+            if (!File.Exists(filePath))
+            {
+                Console.WriteLine("Covid dataset does not exist");
+                return null;
+            }
+
             CovidData newObj = new CovidData(headers, dataArray, index);
             covidDataObjects.Add(newObj);
             index++;
@@ -125,6 +157,12 @@ namespace covid_data
         /// <returns>Edited object of type CovidData</returns>
         public static CovidData Edit(JSONData data)
         {
+            if (!File.Exists(filePath))
+            {
+                Console.WriteLine("Covid dataset does not exist");
+                return null;
+            }
+
             // Find item to edit
             for (int i = 0; i < covidDataObjects.Count; i++)
             {
@@ -143,6 +181,12 @@ namespace covid_data
         /// <returns>bool value to indicate if delete was success</returns>
         public static bool Delete(int id)
         {
+            if (!File.Exists(filePath))
+            {
+                Console.WriteLine("Covid dataset does not exist");
+                return false;
+            }
+
             for (int i = 0; i < covidDataObjects.Count; i++)
             {
                 if (covidDataObjects[i].id == id)
@@ -160,6 +204,12 @@ namespace covid_data
         /// <returns>bool value to indicate success or fail</returns>
         public static bool writeToFile()
         {
+            if (!File.Exists(filePath))
+            {
+                Console.WriteLine("Covid dataset does not exist");
+                return false;
+            }
+
             using (var file = File.CreateText("CovidFileIO/newFile.csv"))
             {
                 // Adding headers

@@ -7,9 +7,15 @@ namespace covid_data.Data
     /// </summary>
     public class KarlObject : CovidData
     {
-        public KarlObject(string[] headers, string[] dataArray, int lineNumber) : base(headers, dataArray, lineNumber)
+        public KarlObject()
         {
             prname = "Karl Rezansoff";
+            prnameFR = "Displaying my name as per assignment requirments";
+        }
+
+        public override string toString()
+        {
+            return prname + "\n" + prnameFR + "\n";
         }
     }
 }

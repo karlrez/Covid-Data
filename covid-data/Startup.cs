@@ -28,7 +28,7 @@ namespace covid_data
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "assignment1", Version = "v1" });
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "assignment3", Version = "v1" });
             });
         }
 
@@ -39,7 +39,7 @@ namespace covid_data
             {
                 app.UseDeveloperExceptionPage();
                 app.UseSwagger();
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "assignment1 v1"));
+                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "assignment3 v1"));
             }
 
             app.UseHttpsRedirection();

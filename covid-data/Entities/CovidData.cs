@@ -7,8 +7,8 @@ namespace covid_data.Entities
     public class CovidData
     {
         /// <summary>
-        /// This class serves as the data transfer object for the Covid
-        /// Data dataset to represent a single record.
+        /// This class serves as the data transfer object for a record from the covid dataset.
+        /// Each attribute maps to a column in the database table.
         /// </summary>
         /// <param name="headers">String array of the dataset headers.</param>
         /// <param name="dataArray">String array of the values for one data record.</param>
@@ -27,50 +27,48 @@ namespace covid_data.Entities
         public int numtoday { get; set; }
         public double ratetotal { get; set; }
 
-        public CovidData(string[] headers, string[] dataArray, int id)
+        public CovidData()
         {
-            if (dataArray[0] == "karl object") // dont need to error check when making Karl Objects
-            {
-                return;
-            }
 
-            this.id = id; // unique identifier for record
+        }
 
+        public CovidData(string[] headers, string[] dataArray, int index)
+        {
             try
             {
-                this.pruid = Convert.ToInt32(dataArray[0].ToString().Trim());
+                this.pruid = Convert.ToInt32(dataArray[1].ToString().Trim());
             }
             catch (Exception ex)
             {
-                Console.WriteLine("exception at: " + headers[0] + " line: " + id, ex);
+                Console.WriteLine("exception at: " + headers[1] + " line: " + index + "\n" + ex);
             }
 
             try
             {
-                this.prname = dataArray[1];
+                this.prname = dataArray[2];
             }
             catch (Exception ex)
             {
-                Console.WriteLine("exception at: " + headers[1] + " line: " + id, ex);
+                Console.WriteLine("exception at: " + headers[2] + " line: " + index + "\n" + ex);
             }
 
             try
             {
-                this.prnameFR = dataArray[2];
+                this.prnameFR = dataArray[3];
             }
             catch (Exception ex)
             {
-                Console.WriteLine("exception at: " + headers[2] + " line: " + id, ex);
+                Console.WriteLine("exception at: " + headers[3] + " line: " + index + "\n" + ex);
             }
 
             try
             {
-                string dateInput = dataArray[3];
+                string dateInput = dataArray[4];
                 this.date = DateTime.Parse(dateInput);
             }
             catch (Exception ex)
             {
-                Console.WriteLine("exception at: " + headers[3] + " line: " + id, ex);
+                Console.WriteLine("exception at: " + headers[4] + " line: " + index + "\n" + ex);
             }
 
             try
@@ -79,7 +77,7 @@ namespace covid_data.Entities
             }
             catch (Exception ex)
             {
-                Console.WriteLine("exception at: " + headers[5] + " line: " + id, ex);
+                Console.WriteLine("exception at: " + headers[5] + " line: " + index + "\n" + ex);
             }
             try
             {
@@ -87,15 +85,22 @@ namespace covid_data.Entities
             }
             catch (Exception ex)
             {
-                Console.WriteLine("exception at: " + headers[6] + " line: " + id, ex);
+                Console.WriteLine("exception at: " + headers[6] + " line: " + index + "\n" + ex);
             }
             try
             {
-                this.numdeaths = Int32.Parse(dataArray[7]);
+                if (dataArray[7] == "")
+                {
+                    this.numdeaths = 0;
+                }
+                else
+                {
+                    this.numdeaths = Int32.Parse(dataArray[7]);
+                }
             }
             catch (Exception ex)
             {
-                Console.WriteLine("exception at: " + headers[7] + " line: " + id, ex);
+                Console.WriteLine("exception at: " + headers[7] + " line: " + index + "\n" + ex);
             }
             try
             {
@@ -103,40 +108,31 @@ namespace covid_data.Entities
             }
             catch (Exception ex)
             {
-                Console.WriteLine("exception at: " + headers[8] + " line: " + id, ex);
+                Console.WriteLine("exception at: " + headers[8] + " line: " + index + "\n" + ex);
             }
             try
             {
-                this.numtoday = Int32.Parse(dataArray[13]);
+                this.numtoday = Int32.Parse(dataArray[9]);
             }
             catch (Exception ex)
             {
-                Console.WriteLine("exception at: " + headers[13] + " line: " + id, ex);
+                Console.WriteLine("exception at: " + headers[9] + " line: " + index + "\n" + ex);
             }
             try
             {
-                this.ratetotal = Double.Parse(dataArray[15].ToString().Trim(), NumberStyles.Number);
+                if (dataArray[10] == "")
+                {
+                    this.ratetotal = 0;
+                }
+                else
+                {
+                    this.ratetotal = Double.Parse(dataArray[10].ToString().Trim(), NumberStyles.Number);
+                }
             }
             catch (Exception ex)
             {
-                Console.WriteLine("exception at: " + headers[15] + " line: " + id, ex);
+                Console.WriteLine("exception at: " + headers[10] + " line: " + index + "\n" + ex);
             }
-        }
-
-        // Creates an easy to read string of the class fields. 
-        public override string ToString()
-        {
-            return $@"CovidData object fields:
-            pruid: {this.pruid}
-            prname: {this.prname}
-            prnameFR: {this.prnameFR}
-            date: {this.date}
-            numconf: {this.numconf}
-            numprob: {this.numprob}
-            numdeaths: {this.numdeaths}
-            numtotal: {this.numtotal}
-            numtoday: {this.numtoday}
-            ratetotal: {this.ratetotal}";
         }
 
         // Returns class fields as string array
@@ -146,10 +142,33 @@ namespace covid_data.Entities
             return fieldsArray;
         }
 
+        // Set values fields based on JSON data
+        public bool setJsonValues(JSONData jsonData)
+        {
+            try
+            {
+                pruid = jsonData.pruid;
+                prname = jsonData.prname;
+                prnameFR = jsonData.prnameFR;
+                date = jsonData.date;
+                numconf = jsonData.numconf;
+                numprob = jsonData.numprob;
+                numdeaths = jsonData.numdeaths;
+                numtotal = jsonData.numtotal;
+                numtoday = jsonData.numtoday;
+                ratetotal = jsonData.ratetotal;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Error setting JSON values:\n" + e);
+                return false;
+            }
+            return true;
+        }
+
         // To edit the object
         public CovidData Edit(JSONData data)
         {
-            id = data.id; // unique identifier for record
             pruid = data.pruid;
             prname = data.prname;
             prnameFR = data.prnameFR;
@@ -162,6 +181,20 @@ namespace covid_data.Entities
             ratetotal = data.ratetotal;
 
             return this;
+        }
+
+        public virtual string toString()
+        {
+            return pruid + "\n" +
+                prname + "\n" +
+                prnameFR + "\n" +
+                date + "\n" +
+                numconf + "\n" +
+                numprob + "\n" +
+                numdeaths + "\n" +
+                numtotal + "\n" +
+                numtoday + "\n" +
+                ratetotal + "\n";
         }
     }
 }

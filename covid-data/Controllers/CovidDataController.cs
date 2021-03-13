@@ -2,14 +2,18 @@ using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using covid_data.Entities;
 using covid_data;
+using covid_data.FileIO;
 using Microsoft.AspNetCore.Http;
 using System;
+using assignment1.Data;
+using System.Linq;
+using Microsoft.EntityFrameworkCore;
+using System.Threading.Tasks;
+using covid_data.Data;
 
 namespace API.Controllers
 {
-    // Attributes for the controller
     [ApiController]
-
     public class CovidDataController : ControllerBase
     {
         /// <summary>
@@ -18,84 +22,176 @@ namespace API.Controllers
         /// <author>Karl Rezansoff</author>
         /// <created>Jan 20, 2021</created>
 
-        // Return all objects or specified object from the covid data list.
-        // route is api/CovidData
-        // Add id? query param to get single object
+        /// <value>Gives us a session of the database</value>
+        private readonly DataContext _context;
+        /// <summary>
+        /// Constructor method to initialize our DataContext variable
+        /// </summary>
+        /// <param name="context"></param>
+        public CovidDataController(DataContext context)
+        {
+            _context = context;
+        }
+
+        /// <summary>
+        /// Returns all database records from the DailyCovidData table
+        /// </summary>
+        /// <returns>Returns all records as a list</returns>
         [Route("api/[controller]")]
         [HttpGet]
-        public List<CovidData> GetData()
+        public async Task<ActionResult<List<CovidData>>> GetData()
         {
-            return ReadCSV.GetAll();
+            List<CovidData> result = await _context.DailyCovidData.ToListAsync();
+            result.Insert(0, new KarlObject());
+            return result;
         }
 
-        [Route("api/[controller]/get")]
-        [HttpGet]
-        public List<CovidData> GetSingleRecord()
+        /// <summary>
+        /// Query for record based on id
+        /// </summary>
+        /// <returns>Returns list with queried record and a dummy variable with my name</returns>
+        [HttpGet("api/[controller]/{id}")] // api/CovidDataController/5
+        public async Task<ActionResult<List<CovidData>>> GetSingleRecord([FromRoute] int id)
         {
-            string id = HttpContext.Request.Query["id"].ToString();
-            if (id != null)
+            List<CovidData> resultList = new List<CovidData>();
+            try
             {
-                CovidData record = ReadCSV.get(Int32.Parse(id));
+                CovidData covidData = await _context.DailyCovidData.FindAsync(id);
+                KarlObject karlObject = new KarlObject();
 
-                if (record == null)
+                if (covidData == null)
                 {
-                    this.HttpContext.Response.StatusCode = 404;
+                    Response.StatusCode = 404;
                     return null;
                 }
-                return new List<CovidData>() { ReadCSV.karlObject, record };
+
+                resultList.Add(covidData);
+                resultList.Add(new KarlObject());
+
+                // Testing out overidden toString()
+                Console.WriteLine("Base class toString() \n" + covidData.toString());
+                Console.WriteLine("Child class toString() \n " + karlObject.toString());
+
+
+                return resultList;
             }
-            return null;
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                Response.StatusCode = 500;
+                return null;
+            }
+
         }
 
-        // Refresh the covid data list
-        [Route("api/[controller]/refresh")]
-        [HttpGet]
-        public ActionResult<string> Refresh()
-        {
-            ReadCSV.Refresh();
-            return "Karl Rezansoff";
-        }
-
-        // Add to covid data list
+        /// <summary>
+        /// Add a record to the DailyCovidData database table
+        /// </summary>
+        /// <param name="covidData">JSON request with variables mapped to a CovidData object.
+        /// Ignores id (id autoincrements) and any missing values default to 0.</param>
+        /// <returns>Returns a string confirmation or error to user</returns>
         [Route("api/[controller]/add")]
         [HttpPost]
-        public ActionResult<string> Add([FromBody] JSONData covidData)
+        public async Task<ActionResult<string>> Add([FromBody] JSONData covidData)
         {
-            ReadCSV.Add(covidData.fieldsToArray());
-            this.HttpContext.Response.StatusCode = 201;
-            return "Karl Rezansoff";
+            // Create new object and set values
+            CovidData newRecord = new CovidData();
+            newRecord.setJsonValues(covidData);
+
+            try
+            {
+                await _context.DailyCovidData.AddAsync(newRecord); // Add to our data context
+                await _context.SaveChangesAsync(); // Commit to the db
+
+                Response.StatusCode = 201;
+                return "Record with ID: " + newRecord.id + " added successfully. \n Karl Rezansoff";
+            }
+            catch (Exception ex) { return "Error adding record\n" + ex; }
         }
 
-        // Edit a record in the covid data list
+        /// <summary>
+        /// Edit a record in the db
+        /// </summary>
+        /// <param name="data">JSON request with variables mapped to CovidData object.
+        /// Cant edit id, missing values default to 0</param>
+        /// <returns>String confirmation or error message</returns>
         [Route("api/[controller]/edit")]
         [HttpPatch]
-        public ActionResult<string> Edit([FromBody] JSONData data)
+        public async Task<ActionResult<string>> Edit([FromBody] JSONData data)
         {
-            ReadCSV.Edit(data);
-            this.HttpContext.Response.StatusCode = 200;
-            return "Karl Rezansoff";
+            try
+            {
+                CovidData editItem = await _context.DailyCovidData.FindAsync(data.id);
+                if (editItem == null)
+                {
+                    return "Record with id: " + data.id + " not found in database";
+                }
+
+                editItem.setJsonValues(data); // Making changes
+                await _context.SaveChangesAsync();
+                return "Record with id: " + data.id + " modified successfully. \n Karl Rezansoff";
+            }
+            catch (Exception ex)
+            {
+                return "Error adding record\n" + ex;
+            }
         }
 
-        // Delete a record in the covid data list
+        /// <summary>
+        /// Remove a record from the DailyCovidData database table
+        /// </summary>
+        /// <param name="data">JSON request with value for id</param>
+        /// <returns>String confirmation or error message</returns>
         [Route("api/[controller]/delete")]
         [HttpDelete]
-        public ActionResult<string> Delete([FromBody] JSONData data)
+        public async Task<ActionResult<string>> Delete([FromBody] JSONData data)
         {
-            if (!ReadCSV.Delete(data.id))
+            try
             {
-                this.HttpContext.Response.StatusCode = 404;
+                CovidData removeItem = await _context.DailyCovidData.FindAsync(data.id); // get item to remove
+                if (removeItem == null)
+                {
+                    return "Record with id: " + data.id + " not found in database";
+                }
+
+                _context.DailyCovidData.Remove(removeItem); // Remove from data context
+                await _context.SaveChangesAsync(); // Commit changes
+
+                return "Record with id: " + data.id + " deleted successfully. \n Karl Rezansoff";
             }
-            // Should be status 204(No Content) but then i wont be able to send back my name
-            return "Karl Rezansoff";
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                return "Error adding record\n" + ex;
+            }
         }
 
-        // Write the current covid data list to a csv file
-        [Route("api/[controller]/save")]
+        /// <summary>
+        /// Removes all records from the DailyCovidData table and then reloads the database again with the csv data
+        /// </summary>
+        /// <returns>String confirmation or error message</returns>
+        [Route("api/[controller]/refresh")]
         [HttpGet]
-        public ActionResult<string> Save()
+        public async Task<ActionResult<string>> Refresh()
         {
-            ReadCSV.writeToFile();
-            return "Karl Rezansoff";
+            try
+            {
+                // Remove all records
+                List<CovidData> deletedObjects = await _context.DailyCovidData.ToListAsync();
+                _context.DailyCovidData.RemoveRange(deletedObjects);
+
+                // Add records in again
+                ReadCSV readCSV = new ReadCSV();
+                _context.DailyCovidData.AddRange(readCSV.covidDataObjects);
+                await _context.SaveChangesAsync();
+                return "Successfully refreshed database";
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                return "Error refreshing database \n" + ex;
+            }
+
         }
     }
 }

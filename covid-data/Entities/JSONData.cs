@@ -4,6 +4,7 @@ namespace covid_data.Entities
 {
     public class JSONData
     {
+        public int id { get; set; }
         public int pruid { get; set; } // Province ID
         public string prname { get; set; } // Province name
         public string prnameFR { get; set; } // Province name French
@@ -14,7 +15,6 @@ namespace covid_data.Entities
         public int numtotal { get; set; }
         public int numtoday { get; set; }
         public double ratetotal { get; set; }
-        public int id { get; set; }
 
         // Returns class fields as string array
         public string[] fieldsToArray()

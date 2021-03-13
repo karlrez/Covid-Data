@@ -1,1 +1,3 @@
-ASP.NET application that reads in 100 lines from the covid data csv file. Includes api endpoints for CRUD operations and a test case. 
+ASP.NET web API and a couple MSTest test cases.
+
+User can perform CRUD operations on the SQLite database, or refresh the database to bring it back to its original state. 

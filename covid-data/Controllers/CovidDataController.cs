@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 using covid_data.Data;
 using Microsoft.Extensions.Logging;
+using System.Globalization;
 
 namespace API.Controllers
 {
@@ -60,6 +61,10 @@ namespace API.Controllers
         [HttpGet]
         public async Task<ListResponse> GetData(string provinceFilter = null, string dateFilter = null, string orderBy = "id", int pageNum = 1)
         {
+            TextInfo textInfo = new CultureInfo("en-US", false).TextInfo;
+            provinceFilter = textInfo.ToTitleCase(provinceFilter);
+            if (provinceFilter.ToLower().Contains("newfoundland")) provinceFilter = "Newfoundland and Labrador";
+            Console.WriteLine(provinceFilter);
             List<CovidData> result;
 
             // Apply filters if given

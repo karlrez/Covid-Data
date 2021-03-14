@@ -61,10 +61,14 @@ namespace API.Controllers
         [HttpGet]
         public async Task<ListResponse> GetData(string provinceFilter = null, string dateFilter = null, string orderBy = "id", int pageNum = 1)
         {
+            // some error checking for province input
             TextInfo textInfo = new CultureInfo("en-US", false).TextInfo;
-            provinceFilter = textInfo.ToTitleCase(provinceFilter);
-            if (provinceFilter.ToLower().Contains("newfoundland")) provinceFilter = "Newfoundland and Labrador";
-            Console.WriteLine(provinceFilter);
+            if (provinceFilter != null)
+            {
+                provinceFilter = textInfo.ToTitleCase(provinceFilter);
+                if (provinceFilter.ToLower().Contains("newfoundland")) provinceFilter = "Newfoundland and Labrador";
+            }
+
             List<CovidData> result;
 
             // Apply filters if given

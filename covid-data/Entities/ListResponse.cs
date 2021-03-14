@@ -8,7 +8,7 @@ namespace covid_data.Entities
     /// </summary>
     public class ListResponse
     {
-        public string myName = "Karl Rezansoff";
+        public string myName { get; set; }
         public int page { get; set; }
         public int totalPages { get; set; }
         public string nextPage { get; set; }
@@ -19,6 +19,7 @@ namespace covid_data.Entities
 
         public ListResponse()
         {
+            myName = "Karl Rezansoff";
             page = 1;
             totalPages = 1;
             nextPage = null;
@@ -30,6 +31,7 @@ namespace covid_data.Entities
 
         public ListResponse(int page, int totalPages, string nextPage, string prevPage, int resultCount, int totalResults, List<CovidData> data)
         {
+            myName = "Karl Rezansoff";
             this.page = page;
             this.totalPages = totalPages;
             this.nextPage = nextPage;

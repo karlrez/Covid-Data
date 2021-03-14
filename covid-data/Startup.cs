@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using assignment1.Data;
+using Microsoft.AspNetCore.Http;
 
 namespace covid_data
 {
@@ -21,6 +22,7 @@ namespace covid_data
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            // DbContext is our SQLite connector
             services.AddDbContext<DataContext>(options =>
             {
                 options.UseSqlite(_config.GetConnectionString("DefaultConnection"));
@@ -30,6 +32,8 @@ namespace covid_data
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "assignment3", Version = "v1" });
             });
+            // Gives us access to our hostname (used in CovidDataController)
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

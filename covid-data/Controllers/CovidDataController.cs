@@ -10,6 +10,7 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 using covid_data.Data;
+using Microsoft.Extensions.Logging;
 
 namespace API.Controllers
 {
@@ -25,25 +26,89 @@ namespace API.Controllers
         /// <value>Gives us a session of the database</value>
         private readonly DataContext _context;
         /// <summary>
-        /// Constructor method to initialize our DataContext variable
+        /// Value for default pagination size
+        /// </summary>
+        public const int RESULTS_PER_PAGE = 20;
+        /// <summary>
+        /// Needed to access our hostname
+        /// https://www.c-sharpcorner.com/blogs/getting-host-information-from-current-the-url-in-asp-net-core-31
+        /// </summary>
+        private readonly ILogger<CovidDataController> _logger;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+
+        /// <summary>
+        /// Constructor method to access our middleware
         /// </summary>
         /// <param name="context"></param>
-        public CovidDataController(DataContext context)
+        public CovidDataController(ILogger<CovidDataController> logger, IHttpContextAccessor httpContextAccessor, DataContext context)
         {
+            _logger = logger;
+            _httpContextAccessor = httpContextAccessor;
             _context = context;
         }
 
         /// <summary>
         /// Returns all database records from the DailyCovidData table
+        /// with specified orderby and filter
+        /// 
+        /// Example sortby and filter (note the escape character for ampersand):
+        /// api/coviddata/?orderby=date DESC, prname&amp;provinceFilter=Alberta&amp;dateFilter=2021-01-09
+        /// 
         /// </summary>
         /// <returns>Returns all records as a list</returns>
         [Route("api/[controller]")]
         [HttpGet]
-        public async Task<ActionResult<List<CovidData>>> GetData()
+        public async Task<ListResponse> GetData(string provinceFilter = null, string dateFilter = null, string orderBy = "id", int pageNum = 1)
         {
-            List<CovidData> result = await _context.DailyCovidData.ToListAsync();
-            result.Insert(0, new KarlObject());
-            return result;
+            List<CovidData> result;
+
+            // Apply filters if given
+            if (provinceFilter != null && dateFilter != null)
+            {
+                result = await _context.DailyCovidData.Where(obj => obj.prname == provinceFilter).Where(obj => obj.date == DateTime.Parse(dateFilter)).OrderBy(orderBy).ToListAsync();
+            }
+            else if (provinceFilter != null)
+            {
+                result = await _context.DailyCovidData.Where(obj => obj.prname == provinceFilter).OrderBy(orderBy).ToListAsync();
+            }
+            else if (dateFilter != null)
+            {
+                result = await _context.DailyCovidData.Where(obj => obj.date == DateTime.Parse(dateFilter)).OrderBy(orderBy).ToListAsync();
+            }
+            else
+            {
+                // Default orderby always applied
+                result = await _context.DailyCovidData.OrderBy(orderBy).ToListAsync();
+            }
+
+            ListResponse listResponse = new ListResponse();
+            listResponse.page = pageNum;
+            listResponse.totalPages = (result.Count() + RESULTS_PER_PAGE - 1) / RESULTS_PER_PAGE;
+
+            // Setting nextPage & prevPage or leaving as null
+            string host = _httpContextAccessor.HttpContext.Request.Host.Value;
+            string apiUrl = "https://" + host + "/api/CovidData/?orderBy=" + orderBy;
+            if (provinceFilter != null) apiUrl.Concat("&provinceFilter=" + provinceFilter);
+
+            if ((pageNum * RESULTS_PER_PAGE) < result.Count())
+            {
+                string page = "&pageNum=" + (pageNum + 1).ToString();
+                listResponse.nextPage = apiUrl + page;
+            }
+
+            if (pageNum > 1)
+            {
+                string page = "&pageNum=" + (pageNum - 1).ToString();
+                listResponse.prevPage = apiUrl + page;
+            }
+
+            listResponse.totalResults = result.Count();
+
+            // Add only RESULTS_PER_PAGE to result data
+            listResponse.data = result.Skip((RESULTS_PER_PAGE * pageNum) - RESULTS_PER_PAGE).Take(RESULTS_PER_PAGE).ToList();
+            listResponse.resultCount = listResponse.data.Count();
+
+            return listResponse;
         }
 
         /// <summary>
